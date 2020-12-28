@@ -2,10 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+logs/**
 # C extensions
 *.so
-
+the-pattern.code-workspace
 # Distribution / packaging
 .Python
 build/
