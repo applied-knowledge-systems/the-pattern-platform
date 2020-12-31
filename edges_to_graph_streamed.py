@@ -17,13 +17,17 @@ def process_item(record):
     source=record['value']['source']
     destination=record['value']['destination']
     log(f"Edges to Graph got source {source} and {destination}")
-    response=rconn.execute_command("GRAPH.QUERY", "cord19medical","""MERGE (source: entity { name: '%s' , label:'entity'}) 
+    response=rconn.execute_command("GRAPH.QUERY", "cord19medical","""MERGE (source: entity { id: '%s' , label:'entity'}) 
          ON CREATE SET source.rank=1
          ON MATCH SET source.rank=(source.rank+1)
-         MERGE (destination: entity { name: '%s', label:'entity' })
+         MERGE (destination: entity { id: '%s', label:'entity' })
          ON CREATE SET destination.rank=1
          ON MATCH SET destination.rank=(destination.rank+1)
-         MERGE (source)-[r:related]->(destination)""" % (source,destination))
+         MERGE (source)-[r:related]->(destination)
+         ON CREATE SET r.rank=1
+         ON MATCH SET r.rank=(r.rank+1)
+         ON CREATE SET r.rank=1
+         ON MATCH SET r.rank=(r.rank+1)""" % (source,destination))
     log('Edges to graph finished with response '+" ".join(map(str,response)))
 
 

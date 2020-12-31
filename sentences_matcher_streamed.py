@@ -1,5 +1,11 @@
 Automata=None 
 
+rconn=None 
+
+def connecttoRedis():
+    import redis 
+    redis_client=redis.Redis(host='127.0.0.1',port=9001,charset="utf-8", decode_responses=True)
+    return redis_client
 
 
 def loadAutomata():
@@ -53,6 +59,10 @@ def process_item(record):
     if not Automata:
         Automata=loadAutomata()
 
+    global rconn
+    if not rconn:
+        rconn=connecttoRedis()
+
     sentence_key=":".join(record['value']['sentence_key'].split(':')[0:-1])
     shard_id=hashtag()
     log(f"Matcher received {sentence_key} and my {shard_id}")
@@ -82,7 +92,8 @@ def process_item(record):
             # execute('HINCRBY', f'nodes:{source_entity_id}' ,'rank',1)
             # execute('HINCRBY', f'nodes:{destination_entity_id}','rank',1)
             # log(f'Matcher Command ZINCRBY  edges_scored:{source_entity_id}:{destination_entity_id},1, {sentence_key}')
-            execute('ZINCRBY', f'edges_scored:{source_entity_id}:{destination_entity_id}'+":"+shard_id,1, sentence_key)
+            # execute('ZINCRBY', f'edges_scored:{source_entity_id}:{destination_entity_id}'+":"+shard_id,1, sentence_key)
+            rconn.zincrby(f'edges_scored:{source_entity_id}:{destination_entity_id}',1, sentence_key)
             # execute('HINCRBY', f'edges:{source_entity_id}:{destination_entity_id}','rank',1)
             log(f'Matcher finished')
     # if value:

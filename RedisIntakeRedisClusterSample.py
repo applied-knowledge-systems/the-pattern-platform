@@ -3,7 +3,7 @@ import ujson as json
 from redis.exceptions import ResponseError
 from rediscluster import RedisCluster
 
-STOPPER=11
+STOPPER=20
 import sys
 from datetime import datetime
 from pathlib import Path
