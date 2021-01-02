@@ -57,5 +57,10 @@ It's not ideal, most parts are hard coded, but I hope it's useful enough for NLP
 - [ ] Publish demo BERT based QA
 - [ ] Publish demo BERT based Summary
 - [ ] Create a docker deployment script for gears and redisgraph
-- [ ] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
+- [x] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
 - [ ] Add redis cluster based debug flag (if execute('GET') then enable logs)
+
+# Update 01.01.2021 
+
+New way to run most of the pipeline:
+gears-cli run --host 127.0.0.1 --port 30001 gears_pipeline_sentence.py --requirements requirements_gears_pipeline.txt
