@@ -1,16 +1,25 @@
-  
+def enable_debug():
+    debug=execute('GET','debug{%s}'% hashtag())
+    if debug=='1':
+        debug=True
+    else:
+        debug=False
+    return debug
+
 
 def remove_prefix(text, prefix):
     return text[text.startswith(prefix) and len(prefix):]
 
 def filter_language(record):
+    debug=enable_debug()
     from langdetect import detect
     #detect language of the article
     value=record['value']
     try:
         lang=detect(value[:1000])
         article_id = remove_prefix(record['key'],'paragraphs:') 
-        log(f"Success lang {article_id}",level='notice')
+        if debug: 
+            log(f"Success lang {article_id}",level='notice')
     except:
         lang=None
     return bool(lang=='en')
@@ -19,6 +28,7 @@ def parse_paragraphs(record):
     """
     parse paragraphs into sentences, returns list
     """
+    debug=enable_debug()
     from sentence_splitter import SentenceSplitter
     splitter = SentenceSplitter(language='en')
     sentences=splitter.split(record['value'])
@@ -50,6 +60,7 @@ def spellcheck_sentences(sentence):
     """
     spellcheck each sentence
     """
+    debug=enable_debug()
     global sym_spell
     if not sym_spell:
         sym_spell=load_symspell()
@@ -60,20 +71,24 @@ def spellcheck_sentences(sentence):
     value = suggestions[0].term
     if value:
         sentence['value']=value
-        log("Spellchecked sentence with article id %s" % sentence['key'])
+        if debug: 
+            log("Spellchecked sentence with article id %s" % sentence['key'])
 
     return sentence
 
 def save_sentences(sentence):
+    debug=enable_debug()
     article_id=sentence['key']
     idx=sentence['idx']
     sentence_key="%s:{%s}" % (article_id, hashtag())
-    log(f"Saving {sentence_key} and {idx}")
+    if debug: 
+        log(f"Saving {sentence_key} and {idx}")
     try:
         execute('HSET', sentence_key,idx,sentence['value'])
         execute('SADD','processed_docs_stage2_para{%s}' % hashtag(),article_id)
     except:
-        log(f"FAILURE: Saving {sentence_key} and {idx} failed")
+        if debug:
+            log(f"FAILURE: Saving {sentence_key} and {idx} failed")
         execute('SADD','processed_docs_stage2_failed{%s}' % hashtag(),article_id)
         
     

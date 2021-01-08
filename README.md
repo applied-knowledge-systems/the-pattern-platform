@@ -56,9 +56,9 @@ It's not ideal, most parts are hard coded, but I hope it's useful enough for NLP
 - [x] Publish UI demo
 - [ ] Publish demo BERT based QA
 - [ ] Publish demo BERT based Summary
-- [ ] Create a docker deployment script for gears and redisgraph
+- [ ] Create a docker deployment script for gears and RedisGraph
 - [x] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
-- [ ] Add redis cluster based debug flag (if execute('GET') then enable logs)
+- [x] Add redis cluster based debug flag (if execute('GET') then enable logs)
 
 # Update 01.01.2021 
 

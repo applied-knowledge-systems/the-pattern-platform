@@ -1,5 +1,13 @@
 rconn=None 
 
+def enable_debug():
+    debug=execute('GET','debug{%s}'% hashtag())
+    if debug=='1':
+        debug=True
+    else:
+        debug=False
+    return debug
+
 def connecttoRedis():
     import redis 
     redis_client=redis.Redis(host='127.0.0.1',port=9001,charset="utf-8", decode_responses=True)
@@ -11,12 +19,14 @@ def OnRegisteredConnect():
     return rconn
 
 def process_item(record):
+    debug=enable_debug()
     global rconn
     if not rconn:
         rconn=connecttoRedis()
     source=record['value']['source']
     destination=record['value']['destination']
-    log(f"Edges to Graph got source {source} and {destination}")
+    if debug:
+        log(f"Edges to Graph got source {source} and {destination}")
     response=rconn.execute_command("GRAPH.QUERY", "cord19medical","""MERGE (source: entity { id: '%s' , label:'entity'}) 
          ON CREATE SET source.rank=1
          ON MATCH SET source.rank=(source.rank+1)
@@ -28,7 +38,8 @@ def process_item(record):
          ON MATCH SET r.rank=(r.rank+1)
          ON CREATE SET r.rank=1
          ON MATCH SET r.rank=(r.rank+1)""" % (source,destination))
-    log('Edges to graph finished with response '+" ".join(map(str,response)))
+    if debug:
+        log('Edges to graph finished with response '+" ".join(map(str,response)))
 
 
 bg = GearsBuilder('StreamReader')
