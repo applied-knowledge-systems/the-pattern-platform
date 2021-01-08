@@ -63,48 +63,38 @@ def process_item(record):
     if not rconn:
         rconn=connecttoRedis()
 
-    # sentence_key=":".join(record['value']['sentence_key'].split(':')[0:-1])
     
     shard_id=hashtag()
     log(f"Matcher received {record['key']} and my {shard_id}")
     for each_key in record['value']:
-        sentence_key=record['key'][each_key]
-        tokens=set(record['value'].split(' '))
-        log("Matcher: length of tokens " + str(len(tokens)))
-        tokens.difference_update(STOP_WORDS)
-        tokens.difference_update(set(punctuation)) 
-        matched_ents = find_matches(" ".join(tokens), Automata)
-        if len(matched_ents)<1:
-            log("Error matching sentence "+sentence_key)
-        else:
-            log("Matcher: Matching sentence "+sentence_key)
-            for pair in itertools.combinations(matched_ents, 2):
-                source_entity_id=pair[0][0]
-                destination_entity_id=pair[1][0]
-                label_source=pair[0][1]
-                label_destination=pair[1][1]
-                source_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_source))
-                destination_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_destination))
-                execute('XADD', 'edges_matched_{%s}' % hashtag(), '*','source',f'{source_entity_id}','destination',f'{destination_entity_id}','rank',1)
+        sentence_key=record['key']+f':{each_key}'
+        tokens=set(record['value'][each_key].split(' '))
+        processed=execute('SISMEMBER','processed_docs_stage3{%s}' % hashtag(),sentence_key)
+        if not processed:
+            log("Matcher: length of tokens " + str(len(tokens)))
+            tokens.difference_update(STOP_WORDS)
+            tokens.difference_update(set(punctuation)) 
+            matched_ents = find_matches(" ".join(tokens), Automata)
+            if len(matched_ents)<1:
+                log("Error matching sentence "+sentence_key)
+            else:
+                log("Matcher: Matching sentence "+sentence_key)
+                for pair in itertools.combinations(matched_ents, 2):
+                    source_entity_id=pair[0][0]
+                    destination_entity_id=pair[1][0]
+                    label_source=pair[0][1]
+                    label_destination=pair[1][1]
+                    source_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_source))
+                    destination_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_destination))
+                    execute('XADD', 'edges_matched_{%s}' % hashtag(), '*','source',f'{source_entity_id}','destination',f'{destination_entity_id}','rank',1)
 
-    #         log(f'Matcher HSETNX nodes:{source_entity_id} id {source_entity_id}')
-    #         execute('RPUSHX', 'edges_matched_{%s}' % hashtag(), f'edges_scored:{source_entity_id}:{destination_entity_id}'+":"+shard_id)
-    #         execute('HSETNX', f"nodes:{source_entity_id}",'id',source_entity_id)
-    #         execute('HSETNX', f'nodes:{source_entity_id}','name',source_canonical_name)
-    #         execute('HSETNX', f'nodes:{destination_entity_id}','id',destination_entity_id)
-    #         execute('HSETNX', f'nodes:{destination_entity_id}','name',destination_canonical_name)
-    #         execute('HINCRBY', f'nodes:{source_entity_id}' ,'rank',1)
-    #         execute('HINCRBY', f'nodes:{destination_entity_id}','rank',1)
-    #         log(f'Matcher Command ZINCRBY  edges_scored:{source_entity_id}:{destination_entity_id},1, {sentence_key}')
-    #         execute('ZINCRBY', f'edges_scored:{source_entity_id}:{destination_entity_id}'+":"+shard_id,1, sentence_key)
-            
-    #         rconn.zincrby(f'edges_scored:{source_entity_id}:{destination_entity_id}',1, sentence_key)
-    #         execute('HINCRBY', f'edges:{source_entity_id}:{destination_entity_id}','rank',1)
-    #         log(f'Matcher finished')
+            execute('SADD','processed_docs_stage3{%s}' % hashtag(),sentence_key)
+        else:
+            log(f"Matcher Alteady processed {sentence_key}")
 
 
 
 bg = GearsBuilder('KeysReader')
 bg.foreach(process_item)
-bg.count()git
+bg.count()
 bg.run('sentence:*',  mode="async_local",onRegistered=OnRegisteredAutomata)

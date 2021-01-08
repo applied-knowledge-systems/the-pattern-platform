@@ -66,14 +66,23 @@ def spellcheck_sentences(sentence):
 
 def save_sentences(sentence):
     article_id=sentence['key']
-    shard_id='{'+ hashtag() + '}'
-    execute('HSET', f'{article_id}{shard_id}', sentence['idx'],sentence['value'])
+    idx=sentence['idx']
+    sentence_key="%s:{%s}" % (article_id, hashtag())
+    log(f"Saving {sentence_key} and {idx}")
+    try:
+        execute('HSET', sentence_key,idx,sentence['value'])
+        execute('SADD','processed_docs_stage2_para{%s}' % hashtag(),article_id)
+    except:
+        log(f"FAILURE: Saving {sentence_key} and {idx} failed")
+        execute('SADD','processed_docs_stage2_failed{%s}' % hashtag(),article_id)
+        
+    
 
 
 gb = GB('KeysReader')
-gb.foreach(filter_language)
+gb.filter(filter_language)
 gb.flatmap(parse_paragraphs)
 gb.map(spellcheck_sentences)
 gb.foreach(save_sentences)
 gb.count()
-gb.register('paragraphs:*',keyTypes=['string'], mode="async_local")
+gb.register('paragraphs:*',keyTypes=['string','hash'], mode="async_local")

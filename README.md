@@ -53,7 +53,7 @@ It's not ideal, most parts are hard coded, but I hope it's useful enough for NLP
 
 - [ ] Update the-pattern overall repository
 - [x] Publish API server repository
-- [ ] Publish UI demo
+- [x] Publish UI demo
 - [ ] Publish demo BERT based QA
 - [ ] Publish demo BERT based Summary
 - [ ] Create a docker deployment script for gears and redisgraph
