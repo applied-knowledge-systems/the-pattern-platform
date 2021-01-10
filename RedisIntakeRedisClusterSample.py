@@ -3,7 +3,7 @@ import ujson as json
 from redis.exceptions import ResponseError
 from rediscluster import RedisCluster
 
-STOPPER=20
+STOPPER=11
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -39,9 +39,13 @@ n_cpus = os.cpu_count()
 logger.info(f'Number of CPUs: {n_cpus}')
 executor = ThreadPoolExecutor(max_workers=n_cpus)
 
+cwd=Path.cwd()
+datapath=cwd.joinpath('./data/')
+print(datapath)
 
-datapath = Path('/home/alex/py_code/the-pattern/data/CORD-19-research-challenge')
-
+import argparse
+parser = argparse.ArgumentParser(description='This is a Sampler python program')
+parser.add_argument('--nsamples', type=int, default=10)
 
 def parse_json_body_text(json_filename):
     logger.info("Processing .." + json_filename.stem)
@@ -68,13 +72,14 @@ def process_file(f, rediscluster_client=rediscluster_client):
 # main submission loop
 counter=0 
 processed=[]
+args = parser.parse_args()
 json_filenames = datapath.glob('**/*.json')
 for each_file in json_filenames:
     logger.info("Submitting task")
     task=executor.submit(process_file,each_file,rediscluster_client)
     processed.append(task)
     counter+=1
-    if counter>STOPPER:
+    if counter>args.nsamples:
         break
 
     

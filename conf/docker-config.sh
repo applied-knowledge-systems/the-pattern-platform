@@ -1,7 +1,8 @@
 BIN_PATH=/usr/local/bin
-CLUSTER_HOST=172.17.0.3
+CLUSTER_HOST=127.0.0.1
+CONTAINER_IP=`hostname -I`
 PORT=30000
-NODES=10
+NODES=$(cat /proc/cpuinfo| grep cores | wc -l)
 REPLICAS=1
 PROTECTED_MODE=no
-ADDITIONAL_OPTIONS="--loadmodule /var/opt/redislabs/lib/modules/redisgears.so PythonHomeDir /opt/redislabs/lib/modules/python3"
+ADDITIONAL_OPTIONS="--cluster-announce-ip $CONTAINER_IP --loadmodule /var/opt/redislabs/lib/modules/redisgears.so CreateVenv 1 DownloadDeps 1"

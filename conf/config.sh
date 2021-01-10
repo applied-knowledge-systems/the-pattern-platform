@@ -1,7 +1,5 @@
-CLUSTER_HOST=10.144.17.211
 PROTECTED_MODE=no
 PORT=30000
-NODES=12
+NODES=$(cat /proc/cpuinfo| grep cores | wc -l)
 REPLICAS=1
-ADDITIONAL_OPTIONS="--loadmodule /home/alex/RedisGears/redisgears.so PythonHomeDir /home/alex/RedisGears/bin/linux-x64-release/python3_99.99.99"
-
+ADDITIONAL_OPTIONS="--loadmodule /home/alex/infrastructure/RedisGears/bin/linux-x64-release/redisgears.so  PythonInstallationDir /home/alex/infrastructure/RedisGears/bin/linux-x64-release/python3_1.0.3 CreateVenv 1 DownloadDeps 1"

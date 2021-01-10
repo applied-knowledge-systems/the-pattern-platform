@@ -4,7 +4,25 @@ This is a NLP pipeline based on RedisGears, this is evolution of  [Cord19Project
 
 The purpose of this part is NLP pipeline to turn text into knowledge graph ("it's about things, not strings") by matching text (terms) to Medical Methathesaurus UMLS (concepts).  As input this pipeline is using CORD19 competition Kaggle dataset - medical articles.
 
+# Super Quick start using Docker
 
+```
+git checkout ..
+cd conf && launch_cluster_docker.sh
+```
+
+It will create docker network build and run Redisgraph and Rgcluster in two separate dockers. 
+In another terminal run 
+
+`sh cluster_pipeline.sh`
+
+It will populate all steps, submit 25 articles into cluster for processing and run matcher. There are few sleep statements to allow cluster to recover. 
+
+Check that RedisGraph instances were populated:
+
+```
+redis-cli -p 9001 -h 127.0.0.1 GRAPH.QUERY cord19medical "MATCH (n:entity) RETURN count(n) as entity_count"
+```
 
 # Architecture 
 
@@ -19,7 +37,8 @@ NLP Steps:
 * Match terms from sentences to UMLS concepts using pre-build Aho-Corasick Automata [sentences_matcher_streamed.py](sentences_matcher_streamed.py)
   * To build you own use aho_corasick_create_direct.py 
     * You need to download and unpack umls-2019AB-metathesaurus.zip 
-* Populate RedisGraph [edges_to_graph_streamed.py](edges_to_graph_streamed.py)  from nodes (concepts) and edges (relationship between concepts, assumption is that if two concepts in the same sentence they are related). RedisGraph is separate instance listening on 9001. 
+* Populate RedisGraph [edges_to_graph_streamed.py](edges_to_graph_streamed.py)  from nodes (concepts) and edges (relationship between concepts, assumption is that if two concepts in the same sentence they are related). RedisGraph is separate instance listening on 9001.
+* Run set_debug_key.py if you want to see logging on each step 
 
 
 
@@ -53,9 +72,14 @@ It's not ideal, most parts are hard coded, but I hope it's useful enough for NLP
 
 - [ ] Update the-pattern overall repository
 - [x] Publish API server repository
-- [ ] Publish UI demo
+- [x] Publish UI demo
 - [ ] Publish demo BERT based QA
 - [ ] Publish demo BERT based Summary
-- [ ] Create a docker deployment script for gears and redisgraph
-- [ ] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
-- [ ] Add redis cluster based debug flag (if execute('GET') then enable logs)
+- [ ] Create a docker deployment script for gears and RedisGraph
+- [x] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
+- [x] Add redis cluster based debug flag (if execute('GET') then enable logs)
+
+# Update 01.01.2021 
+
+New way to run most of the pipeline:
+gears-cli run --host 127.0.0.1 --port 30001 gears_pipeline_sentence.py --requirements requirements_gears_pipeline.txt
