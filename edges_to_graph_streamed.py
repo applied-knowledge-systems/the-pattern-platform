@@ -10,7 +10,7 @@ def enable_debug():
 
 def connecttoRedis():
     import redis 
-    redis_client=redis.Redis(host='127.0.0.1',port=9001,charset="utf-8", decode_responses=True)
+    redis_client=redis.Redis(host='172.19.0.2',port=6379,charset="utf-8", decode_responses=True)
     return redis_client
 
 def OnRegisteredConnect():

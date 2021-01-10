@@ -1,5 +1,3 @@
-# FIXME: on my laptop this script crashes Redis Cluster
-
 Automata=None 
 
 rconn=None 
@@ -59,7 +57,10 @@ def OnRegisteredAutomata():
 
 
 def process_item(record):
-    from spacy.lang.en.stop_words import STOP_WORDS
+    import httpimport
+    with httpimport.remote_repo(['stop_words'], "https://raw.githubusercontent.com/explosion/spaCy/master/spacy/lang/en/"):
+        import stop_words
+    from stop_words import STOP_WORDS
     from string import punctuation
     import itertools
     import re
@@ -84,8 +85,8 @@ def process_item(record):
         if not processed:
             if debug:
                 log("Matcher: length of tokens " + str(len(tokens)))
-            tokens.difference_update(STOP_WORDS)
             tokens.difference_update(set(punctuation)) 
+            tokens.difference_update(STOP_WORDS)
             matched_ents = find_matches(" ".join(tokens), Automata)
             if len(matched_ents)<1:
                 if debug:

@@ -1,6 +1,13 @@
 Automata=None 
 
 rconn=None 
+def enable_debug():
+    debug=execute('GET','debug{%s}'% hashtag())
+    if debug=='1':
+        debug=True
+    else:
+        debug=False
+    return debug
 
 def connecttoRedis():
     import redis 
@@ -50,10 +57,14 @@ def OnRegisteredAutomata():
 
 
 def process_item(record):
-    from spacy.lang.en.stop_words import STOP_WORDS
+    import httpimport
+    with httpimport.remote_repo(['stop_words'], "https://raw.githubusercontent.com/explosion/spaCy/master/spacy/lang/en/"):
+        import stop_words
+    from stop_words import STOP_WORDS
     from string import punctuation
     import itertools
     import re
+    debug=enable_debug()
 
     global Automata
     if not Automata:
@@ -65,20 +76,24 @@ def process_item(record):
 
     
     shard_id=hashtag()
-    log(f"Matcher received {record['key']} and my {shard_id}")
+    if debug:
+        log(f"Matcher received {record['key']} and my {shard_id}")
     for each_key in record['value']:
         sentence_key=record['key']+f':{each_key}'
         tokens=set(record['value'][each_key].split(' '))
         processed=execute('SISMEMBER','processed_docs_stage3{%s}' % hashtag(),sentence_key)
         if not processed:
-            log("Matcher: length of tokens " + str(len(tokens)))
+            if debug:
+                log("Matcher: length of tokens " + str(len(tokens)))
             tokens.difference_update(STOP_WORDS)
             tokens.difference_update(set(punctuation)) 
             matched_ents = find_matches(" ".join(tokens), Automata)
             if len(matched_ents)<1:
-                log("Error matching sentence "+sentence_key)
+                if debug:
+                    log("Error matching sentence "+sentence_key)
             else:
-                log("Matcher: Matching sentence "+sentence_key)
+                if debug: 
+                    log("Matcher: Matching sentence "+sentence_key)
                 for pair in itertools.combinations(matched_ents, 2):
                     source_entity_id=pair[0][0]
                     destination_entity_id=pair[1][0]
@@ -90,7 +105,8 @@ def process_item(record):
 
             execute('SADD','processed_docs_stage3{%s}' % hashtag(),sentence_key)
         else:
-            log(f"Matcher Alteady processed {sentence_key}")
+            if debug:
+                log(f"Matcher Alteady processed {sentence_key}")
 
 
 

@@ -39,8 +39,9 @@ n_cpus = os.cpu_count()
 logger.info(f'Number of CPUs: {n_cpus}')
 executor = ThreadPoolExecutor(max_workers=n_cpus)
 
-
-datapath = Path('../the-pattern/data/CORD-19-research-challenge')
+cwd=Path.cwd()
+datapath=cwd.joinpath('./data/')
+print(datapath)
 
 import argparse
 parser = argparse.ArgumentParser(description='This is a Sampler python program')
