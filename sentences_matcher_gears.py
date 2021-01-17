@@ -11,7 +11,7 @@ def enable_debug():
 
 def connecttoRedis():
     import redis 
-    redis_client=redis.Redis(host='127.0.0.1',port=9001,charset="utf-8", decode_responses=True)
+    redis_client=redis.Redis(host='172.19.0.2',port=6379,charset="utf-8", decode_responses=True)
     return redis_client
 
 
@@ -76,17 +76,19 @@ def process_item(record):
 
     
     shard_id=hashtag()
+    article_id=record['key'].split(':')[1]
     if debug:
         log(f"Matcher received {record['key']} and my {shard_id}")
     for each_key in record['value']:
         sentence_key=record['key']+f':{each_key}'
         tokens=set(record['value'][each_key].split(' '))
-        processed=execute('SISMEMBER','processed_docs_stage3{%s}' % hashtag(),sentence_key)
+        processed=execute('SISMEMBER','processed_docs_stage3{%s}' % shard_id,sentence_key)
         if not processed:
             if debug:
                 log("Matcher: length of tokens " + str(len(tokens)))
-            tokens.difference_update(STOP_WORDS)
-            tokens.difference_update(set(punctuation)) 
+            
+            tokens.difference_update(set(punctuation))
+            tokens.difference_update(STOP_WORDS) 
             matched_ents = find_matches(" ".join(tokens), Automata)
             if len(matched_ents)<1:
                 if debug:
@@ -101,9 +103,18 @@ def process_item(record):
                     label_destination=pair[1][1]
                     source_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_source))
                     destination_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_destination))
-                    execute('XADD', 'edges_matched_{%s}' % hashtag(), '*','source',f'{source_entity_id}','destination',f'{destination_entity_id}','rank',1)
+                    #TODO: this candidate for rgsync
+                    execute('XADD', 'nodes_matched_{%s}' % shard_id, '*','node_id',f'{source_entity_id}','node_name',f'{source_canonical_name}')
+                    execute('XADD', 'nodes_matched {%s}' % shard_id,'*','node_id',f'{destination_entity_id}','node_name',f'{destination_canonical_name}')
+                    year=rconn.hget(f"article_id:{article_id}",'year')
+                    if not year:
+                        year='2021'
+                    execute('XADD', 'edges_matched_{%s}' % shard_id, '*','source',f'{source_entity_id}','destination',f'{destination_entity_id}','source_name',source_canonical_name,'destination_name',destination_canonical_name,'rank',1,'year',year)
 
-            execute('SADD','processed_docs_stage3{%s}' % hashtag(),sentence_key)
+                    #FIXME: this breaks design pattern of processing to support microservices
+                    rconn.zincrby(f'edges_scored:{source_entity_id}:{destination_entity_id}',1, sentence_key)
+
+            execute('SADD','processed_docs_stage3{%s}' % shard_id,sentence_key)
         else:
             if debug:
                 log(f"Matcher Alteady processed {sentence_key}")

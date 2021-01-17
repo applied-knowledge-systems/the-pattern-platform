@@ -7,14 +7,16 @@ The purpose of this part is NLP pipeline to turn text into knowledge graph ("it'
 # Super Quick start using Docker
 
 ```
-git checkout ..
+git checkout main
 cd conf && launch_cluster_docker.sh
 ```
 
 It will create docker network build and run Redisgraph and Rgcluster in two separate dockers. 
 In another terminal run 
-
-`sh cluster_pipeline.sh`
+```
+pip install gears-cli
+sh cluster_pipeline.sh
+```
 
 It will populate all steps, submit 25 articles into cluster for processing and run matcher. There are few sleep statements to allow cluster to recover. 
 
@@ -52,7 +54,7 @@ To run locally:
 
 3. Install gears-cli (pip install -r requirements.txt) and run sh cluster_pipeline_streams.sh to register functions 
 
-4. Populate cluster with sample of articles python RedisIntakeRedisClusterSample.py (modify STOPPER constant to increase size)
+4. Populate cluster with sample of articles python RedisIntakeRedisClusterSample.py (Pass --nsamples n to increase size of the sample)
 
    1. Give a cluster kick using [lang_detect_gears_paragraphs_force.py](lang_detect_gears_paragraphs_force.py) if logs are not showing a lot of activity. Actual command will look like `gears-cli run --host 127.0.0.1 --port 30001 lang_detect_gears_paragraphs_force.py --requirements requirements_gears_lang.txt`
 
@@ -75,7 +77,7 @@ It's not ideal, most parts are hard coded, but I hope it's useful enough for NLP
 - [x] Publish UI demo
 - [ ] Publish demo BERT based QA
 - [ ] Publish demo BERT based Summary
-- [ ] Create a docker deployment script for gears and RedisGraph
+- [x] Create a docker deployment script for gears and RedisGraph
 - [x] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
 - [x] Add redis cluster based debug flag (if execute('GET') then enable logs)
 

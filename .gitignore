@@ -5,6 +5,7 @@ __pycache__/
 logs/**
 # C extensions
 *.so
+./data/cord19-research-challenge/*
 the-pattern.code-workspace
 # Distribution / packaging
 .Python
@@ -127,3 +128,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+data/cord19-research-challenge

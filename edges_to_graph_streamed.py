@@ -23,21 +23,35 @@ def process_item(record):
     global rconn
     if not rconn:
         rconn=connecttoRedis()
-    source=record['value']['source']
-    destination=record['value']['destination']
+    source_id=record['value']['source']
+    source_name=record['value']['source_name']
+    destination_id=record['value']['destination']
+    destination_name=record['value']['destination_name']
+    year=record['value']['year']
     if debug:
-        log(f"Edges to Graph got source {source} and {destination}")
-    response=rconn.execute_command("GRAPH.QUERY", "cord19medical","""MERGE (source: entity { id: '%s' , label:'entity'}) 
+        log(f"Edges to Graph got source {source_id} {source_name} and {destination_id} {destination_name} and {year}")
+        log("""MERGE (source: entity { id: '%s', label :'entity', name: '%s'}) 
          ON CREATE SET source.rank=1
          ON MATCH SET source.rank=(source.rank+1)
-         MERGE (destination: entity { id: '%s', label:'entity' })
+         MERGE (destination: entity { id: '%s', label: 'entity', name: '%s' })
          ON CREATE SET destination.rank=1
          ON MATCH SET destination.rank=(destination.rank+1)
          MERGE (source)-[r:related]->(destination)
-         ON CREATE SET r.rank=1
+         ON CREATE SET r.rank=1, r.year=%s
          ON MATCH SET r.rank=(r.rank+1)
          ON CREATE SET r.rank=1
-         ON MATCH SET r.rank=(r.rank+1)""" % (source,destination))
+         ON MATCH SET r.rank=(r.rank+1)""" % (source_id ,source_name,destination_id,destination_name,year))
+    response=rconn.execute_command("GRAPH.QUERY", "cord19medical","""MERGE (source: entity { id: '%s', label :'entity', name: '%s'}) 
+         ON CREATE SET source.rank=1
+         ON MATCH SET source.rank=(source.rank+1)
+         MERGE (destination: entity { id: '%s', label: 'entity', name: '%s' })
+         ON CREATE SET destination.rank=1
+         ON MATCH SET destination.rank=(destination.rank+1)
+         MERGE (source)-[r:related]->(destination)
+         ON CREATE SET r.rank=1, r.year=%s
+         ON MATCH SET r.rank=(r.rank+1)
+         ON CREATE SET r.rank=1
+         ON MATCH SET r.rank=(r.rank+1)""" % (source_id ,source_name,destination_id,destination_name,year))
     if debug:
         log('Edges to graph finished with response '+" ".join(map(str,response)))
 
