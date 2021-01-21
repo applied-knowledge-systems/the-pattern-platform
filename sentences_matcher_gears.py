@@ -111,7 +111,7 @@ def process_item(record):
                         year='2021'
                     execute('XADD', 'edges_matched_{%s}' % shard_id, '*','source',f'{source_entity_id}','destination',f'{destination_entity_id}','source_name',source_canonical_name,'destination_name',destination_canonical_name,'rank',1,'year',year)
 
-                    #FIXME: this breaks design pattern of processing to support microservices
+                    #FIXME: this breaks design pattern of NLP processing to support microservices pattern on front end
                     rconn.zincrby(f'edges_scored:{source_entity_id}:{destination_entity_id}',1, sentence_key)
 
             execute('SADD','processed_docs_stage3{%s}' % shard_id,sentence_key)
