@@ -12,11 +12,14 @@ Overall it's rather suboptimal solution, for faster processing use async or redi
 try:
     import redis
     import config
-    redis_client = redis.Redis(host=config.config()['host'],port=config.config()['port'],charset="utf-8", decode_responses=True)
+    redis_client = redis.Redis(host=config.config(section='redis_local')['host'],port=config.config(section='redis_local')['port'],charset="utf-8", decode_responses=True)
 except:
     log("Redis is not available ")
 
 import csv
+from io import TextIOWrapper
+from zipfile import ZipFile
+
 from pathlib import Path
 
 def record_to_redis(redis_client, each_line,filename):
@@ -33,16 +36,17 @@ def record_to_redis(redis_client, each_line,filename):
     else:
         log(f"Incorrect date {date_list} in {article_id}")
 
-
-reader = csv.DictReader(open("./data/input/metadata.csv"))
 with redis_client.pipeline() as pipe:
-    for each_line in reader:
-        filelist = [x.strip() for x in each_line['pdf_json_files'].split(";")]
-        for filename in filelist:
-            record_to_redis(redis_client, each_line,filename)
-        filelist = [x.strip() for x in each_line['pmc_json_files'].split(";")]
-        for filename in filelist:
-            record_to_redis(redis_client, each_line,filename)
+    with ZipFile('./data/metadata.zip') as zf:
+            with zf.open('metadata.csv', 'r') as infile:
+                reader = csv.DictReader(TextIOWrapper(infile, 'utf-8'))
+                for each_line in reader:
+                    filelist = [x.strip() for x in each_line['pdf_json_files'].split(";")]
+                    for filename in filelist:
+                        record_to_redis(redis_client, each_line,filename)
+                    filelist = [x.strip() for x in each_line['pmc_json_files'].split(";")]
+                    for filename in filelist:
+                        record_to_redis(redis_client, each_line,filename)
 pipe.execute()
 print("Saving data")
 redis_client.bgsave()

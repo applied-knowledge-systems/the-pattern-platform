@@ -1,11 +1,10 @@
-# docker run --name rgcluster -d -v $PWD/docker-config.sh:/cluster/config.sh -p 30001:30001 -p 30002:30002 -p 30003:30003 redislabs/rgcluster
 network_name='redis_cluster_net'
 docker network create $network_name
 echo $network_name " created"
-
-# docker run --name redisgraph -d --restart=unless-stopped -p 9001:6379 -v $PWD/redisgraph:/data -v $PWD/redis.conf:/usr/local/etc/redis/redis.conf -it --net $network_name redislabs/redisgraph /usr/local/etc/redis/redis.conf
+docker run --name grafana -d --restart=unless-stopped -d -e  "GF_INSTALL_PLUGINS=redis-datasource" -p 3000:3000 --net $network_name grafana/grafana
+docker run --name redisgraph -d --restart=unless-stopped -p 9001:6379 -v $PWD/redisgraph:/data -v $PWD/redis.conf:/usr/local/etc/redis/redis.conf -it --net $network_name redislabs/redisgraph /usr/local/etc/redis/redis.conf
 # docker run --name redisgraph -d --restart=unless-stopped -p 9001:6379 -v $PWD/redisgraph:/data -v $PWD/redis.conf:/usr/local/etc/redis/redis.conf -it --net redis_cluster_net redislabs/redisgraph /usr/local/etc/redis/redis.conf
-docker run --name redisgraph -d -p 9001:6379 -it --rm --net $network_name redislabs/redisgraph
+# docker run --name redisgraph -d -p 9001:6379 -it --rm --net $network_name redislabs/redisgraph
 hostip=`docker inspect -f '{{(index .NetworkSettings.Networks "redis_cluster_net").IPAddress}}' "redisgraph"`;
 echo "IP for cluster node redisgraph is" $hostip
 docker run -it -d -v $PWD/redisinsight:/db --net $network_name -p 8001:8001 redislabs/redisinsight:latest 
