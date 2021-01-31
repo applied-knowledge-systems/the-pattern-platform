@@ -11,7 +11,7 @@ def enable_debug():
 
 def connecttoRedis():
     import redis 
-    redis_client=redis.Redis(host='172.19.0.2',port=6379,charset="utf-8", decode_responses=True)
+    redis_client=redis.Redis(host='redisgraph',port=6379,charset="utf-8", decode_responses=True)
     return redis_client
 
 
@@ -104,8 +104,8 @@ def process_item(record):
                     source_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_source))
                     destination_canonical_name=re.sub('[^A-Za-z0-9]+', ' ', str(label_destination))
                     #TODO: this candidate for rgsync
-                    execute('XADD', 'nodes_matched_{%s}' % shard_id, '*','node_id',f'{source_entity_id}','node_name',f'{source_canonical_name}')
-                    execute('XADD', 'nodes_matched {%s}' % shard_id,'*','node_id',f'{destination_entity_id}','node_name',f'{destination_canonical_name}')
+                    # execute('XADD', 'nodes_matched_{%s}' % shard_id, '*','node_id',f'{source_entity_id}','node_name',f'{source_canonical_name}')
+                    # execute('XADD', 'nodes_matched {%s}' % shard_id,'*','node_id',f'{destination_entity_id}','node_name',f'{destination_canonical_name}')
                     year=rconn.hget(f"article_id:{article_id}",'year')
                     if not year:
                         year='2021'

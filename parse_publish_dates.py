@@ -34,7 +34,7 @@ def record_to_redis(redis_client, each_line,filename):
         log(f"Incorrect date {date_list} in {article_id}")
 
 
-reader = csv.DictReader(open("../the-pattern/data/CORD-19-research-challenge/metadata.csv"))
+reader = csv.DictReader(open("./data/input/metadata.csv"))
 with redis_client.pipeline() as pipe:
     for each_line in reader:
         filelist = [x.strip() for x in each_line['pdf_json_files'].split(";")]
