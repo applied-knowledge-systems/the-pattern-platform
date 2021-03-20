@@ -129,4 +129,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 data/cord19-research-challenge
-conf/redisgraph/dump.rdb
+data/redis*/**
+data/rgcluster/**
