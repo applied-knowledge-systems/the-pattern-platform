@@ -43,7 +43,7 @@ datapath=cwd.joinpath('./data/')
 print(datapath)
 
 import argparse
-parser = argparse.ArgumentParser(description='This is a Sampler python program')
+parser = argparse.ArgumentParser(description='This is a Intake python program')
 parser.add_argument('--nsamples', type=int, default=10)
 parser.add_argument('--path', type=str, default=".")
 
