@@ -6,4 +6,4 @@ PORT=30000
 NODES=10
 REPLICAS=1
 PROTECTED_MODE=no
-ADDITIONAL_OPTIONS="--dir /data --cluster-announce-ip $CONTAINER_IP --loadmodule /usr/lib/redis/modules/redisai.so --loadmodule /var/opt/redislabs/lib/modules/redisgears.so CreateVenv 1 DownloadDeps 1"
+ADDITIONAL_OPTIONS="--dir /data --cluster-announce-ip $CONTAINER_IP --loadmodule /usr/lib/redis/modules/redisai.so --loadmodule /var/opt/redislabs/lib/modules/redisgears.so Plugin /var/opt/redislabs/modules/rg/plugin/gears_python.so PythonInstallationDir /var/opt/redislabs/modules/rg CreateVenv 1 DownloadDeps 1 "
