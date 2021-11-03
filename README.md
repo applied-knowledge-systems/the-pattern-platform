@@ -72,11 +72,11 @@ If you want to create you own NLP processing step lang_detect_gears_paragraphs_f
 
 It's not ideal, most parts are hard coded, but I hope it's useful enough for NLP data scientists. Overall architecture is still as in [original](https://github.com/AlexMikhalev/cord19redisknowledgegraph)  project.
 
-- [ ] Update the-pattern overall repository
+- [x] Update the-pattern overall repository
 - [x] Publish API server repository
 - [x] Publish UI demo
-- [ ] Publish demo BERT based QA
-- [ ] Publish demo BERT based Summary
+- [x] Publish demo BERT based QA
+- [x] Publish demo BERT based Summary
 - [x] Create a docker deployment script for gears and RedisGraph
 - [x] Add sentence splitter with https://github.com/mediacloud/sentence-splitter instead of spacy
 - [x] Add redis cluster based debug flag (if execute('GET') then enable logs)

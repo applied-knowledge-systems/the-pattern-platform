@@ -6,6 +6,7 @@ logs/**
 # C extensions
 *.so
 ./data/cord19-research-challenge/*
+./data/CORD-19-research-challenge/*
 the-pattern.code-workspace
 # Distribution / packaging
 .Python
