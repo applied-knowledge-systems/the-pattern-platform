@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 python3 parse_publish_dates_threaded.py
 # set debug to true - comment it out on fresh cluster or set value to 0 to disable debug, by defaul pipelines logs everything - every query 
 # gears-cli run --host 127.0.0.1 --port 30001 set_debug_key.py
