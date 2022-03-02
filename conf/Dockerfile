@@ -1,4 +1,4 @@
-FROM redislabs/redisai:edge-cpu-bionic AS builder
+FROM redislabs/redisai:1.2.5-cpu-bionic AS builder 
 FROM ghcr.io/applied-knowledge-systems/rgcluster:edge
 RUN apt-get update && apt-get install -y build-essential libgomp1
 ENV REDIS_MODULES /usr/lib/redis/modules
