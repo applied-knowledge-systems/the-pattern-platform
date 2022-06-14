@@ -12,7 +12,7 @@ For faster processing use async or redis-cli --pipe
 try:
     import redis
     import config
-    redis_client = redis.Redis(host=config.config(section='redis_local')['host'],port=config.config(section='redis_local')['port'],charset="utf-8", decode_responses=True)
+    redis_client = redis.Redis(host=config.config(section='redis')['host'],port=config.config(section='redis')['port'],charset="utf-8", decode_responses=True)
 except:
     log("Redis is not available ")
 

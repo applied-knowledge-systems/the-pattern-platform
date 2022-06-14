@@ -27,7 +27,7 @@ logger = logging.getLogger()
 
 
 import config
-rc_list=json.loads(config.config(section='rediscluster')['rediscluster'])
+rc_list=json.loads(config.config(section='rediscluster_docker')['rediscluster'])
 
 
 rediscluster_client = RedisCluster(startup_nodes=rc_list, decode_responses=True)
