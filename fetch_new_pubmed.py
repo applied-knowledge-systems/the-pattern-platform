@@ -5,7 +5,7 @@ import xmltodict
 db = 'pmc'
 domain = 'https://www.ncbi.nlm.nih.gov/entrez/eutils'
 nresults = 4
-query = "depression"
+query = "biosynthetic+gene+clusters"
 retmode='json'
 
 # standard query
