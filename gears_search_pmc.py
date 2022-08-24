@@ -19,7 +19,7 @@ async def search_pmc(record):
     import json
     db = 'pmc'
     domain = 'https://www.ncbi.nlm.nih.gov/entrez/eutils'
-    nresults = 4
+    nresults = 60
     query = record[1]
     retmode='json'
     # FIXME: cache response for at least 2 hours

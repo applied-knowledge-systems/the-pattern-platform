@@ -9,7 +9,7 @@ query = "biosynthetic+gene+clusters"
 retmode='json'
 
 # standard query
-queryLinkSearch = f'{domain}/esearch.fcgi?db={db}&retmax={nresults}&retmode={retmode}&term={query}'
+queryLinkSearch = f'{domain}/esearch.fcgi?db={db}&retmax={nresults}&retmode={retmode}&term={query}&usehistory=y'
 response = requests.get(queryLinkSearch)
 pubmedJson = response.json()
 
