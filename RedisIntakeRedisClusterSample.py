@@ -26,13 +26,31 @@ logger = logging.getLogger()
 
 
 
-import config
-rc_list=json.loads(config.config(section='rediscluster_docker')['rediscluster'])
+import os 
 
+config_switch=os.getenv('DOCKER', 'local')
+REDISGRAPH_PORT=os.getenv('REDISGRAPH_PORT', "9001")
+if config_switch=='local':
+    startup_nodes = [{"host": "127.0.0.1", "port": "30001"}, {"host": "127.0.0.1", "port":"30002"}, {"host":"127.0.0.1", "port":"30003"}]
+    host="127.0.0.1"
+    port=REDISGRAPH_PORT
+else:
+    startup_nodes = [{"host": "rgcluster", "port": "30001"}, {"host": "rgcluster", "port":"30002"}, {"host":"rgcluster", "port":"30003"}]
+    host="redisgraph"
+    port=REDISGRAPH_PORT
 
-rediscluster_client = RedisCluster(startup_nodes=rc_list, decode_responses=True)
+try:
+    import redis
+    redis_client = redis.Redis(host=host,port=port,charset="utf-8", decode_responses=True)
+except:
+    log("Redis is not available ")
 
-import os
+try: 
+    from rediscluster import RedisCluster
+    rediscluster_client = RedisCluster(startup_nodes=startup_nodes, decode_responses=True, skip_full_coverage_check=True)
+except:
+    log("RedisCluster is not available")
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 n_cpus = os.cpu_count()
 logger.info(f'Number of CPUs: {n_cpus}')
@@ -40,7 +58,7 @@ executor = ThreadPoolExecutor(max_workers=n_cpus)
 
 cwd=Path.cwd()
 datapath=cwd.joinpath('./data/')
-print(datapath)
+print(f'Datapath {datapath}')
 
 import argparse
 parser = argparse.ArgumentParser(description='This is a Intake python program')
