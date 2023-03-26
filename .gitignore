@@ -5,6 +5,7 @@ __pycache__/
 logs/**
 # C extensions
 *.so
+data/document_parses/
 ./data/cord19-research-challenge/**
 */data/CORD-19-research-challenge/**
 ./data/CORD-19-research-challenge/*
